@@ -1,0 +1,164 @@
+# File name: client_metalink.py
+#:import RiseInTransition kivy.uix.screenmanager.FadeTransition
+#:import C kivy.utils.get_color_from_hex
+#:import ListAdapter kivy.adapters.listadapter.ListAdapter
+#:import ListItemButton kivy.uix.listview.ListItemButton
+#:kivy 1.8.0
+
+<ListItemButton>:
+    on_press: app.join_game(self.text)
+
+<GameOverPopup@Popup>:
+    title: 'GAME OVER'
+    pos: app.root.pos
+    size_hint: (0.7, 0.7)
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: score_label
+            text: 'Score '
+            font_size: 50
+        Button:
+            size_hint: (0.3, 0.2)
+            pos_hint: {'center_x': 0.5, 'top': 0.3}
+            text: 'Continue'
+            font_size: 22
+            on_press: root.dismiss()
+
+<MentaLink_Client>:
+    orientation: 'vertical'
+    minimum_width: 500
+    image_handler: game_image
+    ScreenManager:
+        id: screens
+        transition: RiseInTransition()
+        Screen:
+            name: 'menu'
+            BoxLayout:
+                orientation: 'vertical'
+                #color: C('#00FF00')
+                Label:
+                    text: 'MentaLink'
+                    font_size: 30
+                    pos_hint: {'top': 1}
+                GridLayout:
+                    size_hint_x: 0.5
+                    pos_hint: {'center_x': 0.5}
+                    cols: 1
+                    spacing: 20
+                    padding: 20
+                    Button:
+                        text: 'Create game'
+                        font_size: 20
+                        size_hint: (0.4, 0.1)
+                        pos_hint: {'center_x': 0.5}
+                        center_y: 1
+                        # on_press: screens.current = 'game_area'
+                        on_press: screens.current = 'create_game'
+                    Button:
+                        text: 'Join a game'
+                        font_size: 20
+                        size_hint: (0.4, 0.1)
+                        pos_hint: {'center_x': 0.5}
+                        center_y: 1
+                        on_press: screens.current = 'join_game'
+
+        Screen:
+            name: 'create_game'
+            BoxLayout:
+                orientation: 'vertical'
+                BoxLayout:
+                    size_hint_y: 20
+                TextInput:
+                    id: game_name_input
+                    font_size: 30
+                    pos_hint: {'center_x': 0.5}
+                    size_hint_y: 10
+                    size_hint_x: 0.5
+                BoxLayout:
+                    size_hint_y: 20
+                Button:
+                    text: 'Create & Join'
+                    pos_hint: {'center_x': 0.5}
+                    size_hint_y: 20
+                    size_hint_x: 0.3
+                    font_size: 30
+                    on_press: app.create_game(game_name_input.text)
+                BoxLayout:
+                    size_hint_y: 30
+        Screen:
+            name: 'waiting_area'
+            BoxLayout: 
+                orientation: 'vertical'
+                Label:
+                    text: str(app.game_counter)
+                    font_size: 70
+
+        Screen:
+            name: 'game_area'
+            BoxLayout:
+                orientation: 'vertical'
+                BoxLayout:
+                    size_hint_y: 80
+                    orientation: 'vertical'
+                    BoxLayout:
+                        size_hint_y: 10
+                        Label:
+                            id: game_name
+                            font_size: 20
+                        Label:
+                            id: timer
+                            font_size: 20
+                    AsyncImage:
+                        id: game_image
+                        size: self.size
+                        size_hint_y: 90
+                    # Image:                    
+                    #     id: game_image
+                    #     size_hint_y: 90
+                    #     size: self.size
+                    #     source: 'img4.jpg'
+                BoxLayout:
+                    size_hint_y: 20
+                    spacing: 10
+                    padding: 10
+                    TextInput:
+                        id: answer_input
+                        size_hint_x: 80
+                        font_size: 30
+                    Button:
+                        text: 'send'
+                        size_hint_x: 20
+                        font_size: 20
+                        on_press: app.send_ans(answer_input.text)
+
+        Screen:
+            name: 'join_game'
+            BoxLayout:
+                orientation: 'vertical'
+                spacing: 10
+                padding: 10
+                Label:
+                    text: 'Available games:'
+                    font_size: 20
+                    size_hint_y: 20
+                ScrollView:
+                    size_hint_y: 80
+                    canvas.before:
+                    # wrapping the scrollable event list into a rounded rectangle
+                        Color:
+                            rgba: 0.1, 0.1, 0.1, 0.7
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            segments: 20
+                    ListView:
+                        spacing: 20
+                        padding: 20
+                        adapter:
+                            ListAdapter(data=app.game_list,
+                            selection_mode='single',
+                            allow_empty_selection=False,
+                            cls=ListItemButton)
+
